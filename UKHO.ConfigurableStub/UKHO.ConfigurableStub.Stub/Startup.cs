@@ -44,7 +44,7 @@ namespace UKHO.ConfigurableStub.Stub
 
             app.UseErrorLogging(loggerFactory)
                 .UseLogAllRequests(loggerFactory)
-                .UsePqcStubRouter();
+                .UseStubRouter();
         }
     }
 }

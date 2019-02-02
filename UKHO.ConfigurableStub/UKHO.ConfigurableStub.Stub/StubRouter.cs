@@ -28,9 +28,9 @@ using UKHO.ConfigurableStub.Stub.Models;
 
 namespace UKHO.ConfigurableStub.Stub
 {
-    internal static class PqcStubRouter
+    internal static class StubRouter
     {
-        internal static IApplicationBuilder UsePqcStubRouter(this IApplicationBuilder app)
+        internal static IApplicationBuilder UseStubRouter(this IApplicationBuilder app)
         {
             var mappedRoutes =
                 new ConcurrentDictionary<string, RouteConfiguration>();
@@ -51,7 +51,7 @@ namespace UKHO.ConfigurableStub.Stub
             });
 
             var routeBuilder = new RouteBuilder(app, defaultRouteHandler);
-            routeBuilder.MapRoute("pqcRoutes", "api/{*resource}");
+            routeBuilder.MapRoute("Routes", "api/{*resource}");
 
             routeBuilder.MapGet("stub/{verb}/api/{*resource}", //get details from last request to url...
                 context =>
