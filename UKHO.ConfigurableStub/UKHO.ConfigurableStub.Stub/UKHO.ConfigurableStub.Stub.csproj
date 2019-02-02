@@ -8,19 +8,17 @@
     <AssemblyName>UKHO.ConfigurableStub.Stub</AssemblyName>
     <PackageId>UKHO.ConfigurableStub.Stub</PackageId>
     <DocumentationFile />
-    <PlatformTarget>x64</PlatformTarget>
     <RootNamespace>UKHO.ConfigurableStub.Stub</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IsPackable>true</IsPackable>
+    <Version>1.0.3</Version>
+
 
 
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>C:\GitHub\UKHO.ConfigurableStub\UKHO.ConfigurableStub\UKHO.ConfigurableStub\bin\Debug\</OutputPath>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="..\UKHO.ConfigurableStub\Models\RequestRecord.cs" Link="Models\RequestRecord.cs" />
-    <Compile Include="..\UKHO.ConfigurableStub\Models\RouteConfiguration.cs" Link="Models\RouteConfiguration.cs" />
-  </ItemGroup>
 <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>

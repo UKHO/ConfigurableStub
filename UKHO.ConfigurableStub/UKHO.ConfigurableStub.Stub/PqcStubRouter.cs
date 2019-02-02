@@ -24,9 +24,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
-using UKHO.ConfigurableStub.Models;
+using UKHO.ConfigurableStub.Stub.Models;
 
-namespace UKHO.POD.PrintQueueController.Stub
+namespace UKHO.ConfigurableStub.Stub
 {
     internal static class PqcStubRouter
     {

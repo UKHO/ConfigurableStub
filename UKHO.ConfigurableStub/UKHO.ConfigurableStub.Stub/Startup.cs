@@ -21,9 +21,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 
-namespace UKHO.POD.PrintQueueController.Stub
+namespace UKHO.ConfigurableStub.Stub
 {
-    public class Startup
+    internal class Startup
     {
         public Startup(ILoggerFactory loggerFactory)
         {

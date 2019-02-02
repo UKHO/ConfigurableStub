@@ -20,18 +20,17 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 
-namespace UKHO.POD.PrintQueueController.Stub
+namespace UKHO.ConfigurableStub.Stub
 {
     [ExcludeFromCodeCoverage] // extension methods that call extension methods make this difficult to test.
-    public static class LoggingMiddleware
+    internal static class LoggingMiddleware
     {
-        public static IApplicationBuilder UseErrorLogging(this IApplicationBuilder appBuilder, ILoggerFactory loggerFactory)
+        internal static IApplicationBuilder UseErrorLogging(this IApplicationBuilder appBuilder, ILoggerFactory loggerFactory)
         {
             return appBuilder.Use(async (context, func) =>
                                   {
@@ -49,7 +48,7 @@ namespace UKHO.POD.PrintQueueController.Stub
                                   });
         }
 
-        public static IApplicationBuilder UseLogAllRequests(this IApplicationBuilder appBuilder, ILoggerFactory loggerFactory)
+        internal static IApplicationBuilder UseLogAllRequests(this IApplicationBuilder appBuilder, ILoggerFactory loggerFactory)
         {
             return appBuilder.Use(async (context, func) =>
                                   {

@@ -20,29 +20,45 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using UKHO.POD.PrintQueueController.Stub;
 
 namespace UKHO.ConfigurableStub.Stub
 {
-    public static class Program
+    /// <summary>
+    /// The StubStartup class contains the static methods to start the stub
+    /// </summary>
+    public static class StubStartup
     {
+        /// <summary>
+        /// Will start the stub use default ports of 44310 for https and 44336 for http. The self signed cert it uses will expire after 40 minutes
+        /// </summary>
+        /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            BuildStubWebHost().Run();
+            BuildStubWebHost(44310, 44336, 40);
         }
 
-        private static IWebHost BuildStubWebHost()
+        /// <summary>
+        /// Start the stub with specified ports and a specified certificate expiry.
+        /// </summary>
+        /// <param name="httpsPort"></param>
+        /// <param name="httpPort"></param>
+        /// <param name="certExpiryInMinutes"></param>
+        public static void StartWithSpecifiedPorts(int httpsPort, int httpPort, int certExpiryInMinutes = 40)
         {
-            var certificateBuilder = new CertificateBuilder("password1", TimeSpan.FromMinutes(10));
+            BuildStubWebHost( httpsPort,  httpPort,  certExpiryInMinutes).Run();
+        }
+
+        private static IWebHost BuildStubWebHost(int httpsPort, int httpPort, int certExpiryInMinutes)
+        {
+            var certificateBuilder = new CertificateBuilder("password1", TimeSpan.FromMinutes(certExpiryInMinutes));
             var cert = new X509Certificate2(certificateBuilder.CertificateStream.ToArray(), "password1");
             return WebHost.CreateDefaultBuilder(new string[0])
                 .UseStartup<Startup>()
                 .UseKestrel(options =>
                             {
-                                options.Listen(IPAddress.Loopback, 44310, listenOptions => { listenOptions.UseHttps(cert); });
-                                options.Listen(IPAddress.Loopback, 44336);
+                                options.Listen(IPAddress.Loopback, httpsPort, listenOptions => { listenOptions.UseHttps(cert); });
+                                options.Listen(IPAddress.Loopback, httpPort);
                             })
-                .UseIISIntegration()
                 .Build();
         }
     }
