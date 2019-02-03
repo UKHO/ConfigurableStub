@@ -17,7 +17,7 @@
 
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\GitHub\UKHO.ConfigurableStub\UKHO.ConfigurableStub\UKHO.ConfigurableStub\bin\Debug\</OutputPath>
+    <OutputPath></OutputPath>
   </PropertyGroup>
 <ItemGroup>
     <Folder Include="wwwroot\" />
