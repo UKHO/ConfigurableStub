@@ -5,6 +5,7 @@ This package provides a stub for API calls that can be configured to return pre-
 ## How to use the Stub
 
 The stub is a .net core webapp targeting .net framework 471. The web app is packaged into a nuget package. Currently the stub can only be used if you are using the new csproj format due to the way the libuv.dll dependency is resolved.
+The stub also has libuv baked into the nuget package as test project, such as Autotest projects also do not bring in libuv even if they are the new Csproj types. This could cause problems with cross compatibilty with versions of windows and linux.
 
 ### Running up the stub
 
