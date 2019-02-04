@@ -11,7 +11,10 @@
     <RootNamespace>UKHO.ConfigurableStub.Stub</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IsPackable>true</IsPackable>
-    <Version>1.0.9</Version>
+    <Version>1.0.10</Version>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
 
 
 

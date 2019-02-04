@@ -28,37 +28,32 @@ namespace UKHO.ConfigurableStub.Stub
     /// </summary>
     public static class StubStartup
     {
-        /// <summary>
-        /// Will start the stub use default ports of 44310 for https and 44336 for http. The self signed cert it uses will expire after 40 minutes
-        /// </summary>
-        /// <param name="args"></param>
-        public static void Main(string[] args)
-        {
-            BuildStubWebHost(44310, 44336, 40);
-        }
+
 
         /// <summary>
-        /// Start the stub with specified ports and a specified certificate expiry.
+        /// Start the stub with Kestrel on ports 46590 for https and 46587 for http using IIS integration on ports 43455 for https and 54988 for http.
         /// </summary>
-        /// <param name="httpsPort"></param>
-        /// <param name="httpPort"></param>
-        /// <param name="certExpiryInMinutes"></param>
-        public static void StartWithSpecifiedPorts(int httpsPort, int httpPort, int certExpiryInMinutes = 40)
+        /// <remarks>
+        /// TODO - make ports configurable
+        /// This stub will not work if not run from an executable with a new csproj.
+        /// </remarks>>
+        public static void StartStub()
         {
-            BuildStubWebHost( httpsPort,  httpPort,  certExpiryInMinutes).Run();
+            BuildStubWebHost().Run();
         }
 
-        private static IWebHost BuildStubWebHost(int httpsPort, int httpPort, int certExpiryInMinutes)
+        private static IWebHost BuildStubWebHost()
         {
-            var certificateBuilder = new CertificateBuilder("password1", TimeSpan.FromMinutes(certExpiryInMinutes));
+            var certificateBuilder = new CertificateBuilder("password1", TimeSpan.FromMinutes(40));
             var cert = new X509Certificate2(certificateBuilder.CertificateStream.ToArray(), "password1");
             return WebHost.CreateDefaultBuilder(new string[0])
                 .UseStartup<Startup>()
                 .UseKestrel(options =>
                             {
-                                options.Listen(IPAddress.Loopback, httpsPort, listenOptions => { listenOptions.UseHttps(cert); });
-                                options.Listen(IPAddress.Loopback, httpPort);
+                                options.Listen(IPAddress.Loopback, 46590, listenOptions => { listenOptions.UseHttps(cert); });
+                                options.Listen(IPAddress.Loopback, 46587);
                             })
+                .UseIISIntegration()
                 .Build();
         }
     }
