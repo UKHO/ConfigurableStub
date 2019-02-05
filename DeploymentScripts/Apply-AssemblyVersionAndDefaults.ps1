@@ -19,6 +19,7 @@ if ($validBuildNumber -eq $false) {
 
 $buildNumberSplit = $buildNumber.Split('_')
 $buildRevisionNumber = $buildNumberSplit[1] -replace ".DRAFT", ""
+$buildRevisionNumber = $buildRevisionNumber.Substring(2, $buildRevisionNumber.Length - 2)
 $versionToApply = "$majorMinorVersion.$buildRevisionNumber"
 
 $assemblyValues = @{
@@ -32,26 +33,32 @@ $assemblyValues = @{
 }
 
 Write-Host "    Set version to $versionToApply"
+ 
+function UpdateOrAddAttribute([xml]$xmlContent, $assemblyKey, $newValue, $namespace) {
+    $propertyGroup = $xmlContent.Project.PropertyGroup
 
-function UpdateOrAddAttributes([xml]$xmlContent, $assemblyKey, $newValue) {
-    $propertyGroupNode = $xmlContent.Project.PropertyGroup.$assemblyKey
+    if ($propertyGroup -is [array]) {
+        $propertyGroup = $propertyGroup[0]
+    }
+
+    $propertyGroupNode = $propertyGroup.$assemblyKey
 
     if ($null -ne $propertyGroupNode ) {
         Write-Host "Assembly key $assemblyKey has been located in source file. Updating..."
-        $xmlContent.Project.PropertyGroup.$assemblyKey = $newValue
+        $propertyGroup.$assemblyKey = $newValue
+        return $xmlContent
     }
 
     Write-Host "Assembly key $assemblyKey could not be located in source file. Appending..."
 
-    $newChild = $xmlContent.CreateElement($assemblyKey)
+    $newChild = $xmlContent.CreateElement($assemblyKey, $namespace)
     $newChild.InnerText = $newValue
-    $xmlContent.Project.PropertyGroup.AppendChild($newChild)
+    $propertyGroup.AppendChild($newChild)
 
     return $propertyGroupNode
 }
 
-(Get-ChildItem -Path $solutionDirectory -File -Filter "*.csproj" -Recurse) | ForEach-Object
-{
+(Get-ChildItem -Path $solutionDirectory -File -Filter "*.csproj" -Recurse) | ForEach-Object {
     $file = $_
 
     Write-Host "Updating assembly file at path: $file"
@@ -60,7 +67,7 @@ function UpdateOrAddAttributes([xml]$xmlContent, $assemblyKey, $newValue) {
     $assemblyValues.Keys | ForEach-Object {
         $key = $_
         
-        UpdateOrAddAttributes $xmlContent $key $assemblyValues[$key]
+        UpdateOrAddAttribute $xmlContent $key $assemblyValues[$key] $xmlContent.DocumentElement.NamespaceURI
     }
 
     $xmlContent.Save($file.FullName)
