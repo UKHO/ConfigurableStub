@@ -3,6 +3,10 @@ param (
     [Parameter(Mandatory = $true)] [string] $solutionDirectory
 )
 
+Write-Host "Setting assembly versions and defaults..."
+Write-Host "    BuildNumber: $buildNumber"
+Write-Host "    SolutionDir: $solutionDirectory"
+
 $majorMinorVersion = "1.0"
 
 $buildNumberRegex = "(.+)_20([0-9]{3,5}).([0-9]{1,2})"
@@ -15,17 +19,19 @@ if ($validBuildNumber -eq $false) {
 
 $buildNumberSplit = $buildNumber.Split('_')
 $buildRevisionNumber = $buildNumberSplit[1] -replace ".DRAFT", ""
-$verstionToApply = "$majorMinorVersion.$buildRevisionNumber"
+$versionToApply = "$majorMinorVersion.$buildRevisionNumber"
 
 $assemblyValues = @{
     "Company"         = "UK Hydrographic Office";
     "Copyright"       = "Crown Copyright © UK Hydrographic Office 2019";
     "Description"     = "UKHO.ConfigurableStub";
     "Product"         = "UKHO.ConfigurableStub";
-    "AssemblyVersion" = $verstionToApply;
-    "FileVersion"     = $verstionToApply;
-    "Version"         = $verstionToApply;
+    "AssemblyVersion" = $versionToApply;
+    "FileVersion"     = $versionToApply;
+    "Version"         = $versionToApply;
 }
+
+Write-Host "    Set version to $versionToApply"
 
 function UpdateOrAddAttributes([xml]$xmlContent, $assemblyKey, $newValue) {
     $propertyGroupNode = $xmlContent.Project.PropertyGroup.$assemblyKey
