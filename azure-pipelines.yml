@@ -9,3 +9,16 @@ trigger:
 
 queue:
   name: NautilusBuild
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- script: dotnet build --configuration $(buildConfiguration)
+- script: dotnet pack  --configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+    ArtifactName: 'Drop'
