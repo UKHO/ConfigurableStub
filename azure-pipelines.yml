@@ -16,6 +16,13 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- task: PowerShell@2
+  displayName: Apply version numbers to assemblies
+  inputs:
+    targetType: 'filePath'
+    filePath: DeploymentScripts/Apply-AssemblyVersionAndDefaults.ps1
+    arguments: -buildNumber "$(Build.BuildNumber)" -solutionDirectory "$(Build.SourcesDirectory)"
+  
 - script: dotnet build --configuration $(buildConfiguration)
 - script: dotnet pack  --configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)
 
