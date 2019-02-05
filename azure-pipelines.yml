@@ -1,4 +1,4 @@
-name: UKHO.ConfigurableStub_$(Date:yyyy)$(DayOfYear).$(Rev:.r)
+name: UKHO.ConfigurableStub_$(Date:yyyy)$(DayOfYear)$(Rev:.r)
 
 resources:
 - repo: self
