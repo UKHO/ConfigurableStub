@@ -1,3 +1,5 @@
+name: UKHO.ConfigurableStub_$(Date:yyyy)$(DayOfYear).$(Rev:.r)
+
 resources:
 - repo: self
   clean: true
