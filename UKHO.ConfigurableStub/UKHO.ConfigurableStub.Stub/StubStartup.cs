@@ -1,4 +1,4 @@
-// British Crown Copyright © 2018,
+// British Crown Copyright ï¿½ 2018,
 // All rights reserved.
 // 
 // You may not copy the Software, rent, lease, sub-license, loan, translate, merge, adapt, vary
@@ -50,10 +50,9 @@ namespace UKHO.ConfigurableStub.Stub
                 .UseStartup<Startup>()
                 .UseKestrel(options =>
                             {
-                                options.Listen(IPAddress.Loopback, 46590, listenOptions => { listenOptions.UseHttps(cert); });
-                                options.Listen(IPAddress.Loopback, 46587);
+                                options.Listen(IPAddress.Loopback, DefaultPortConfiguration.HttpsPort, listenOptions => { listenOptions.UseHttps(cert); });
+                                options.Listen(IPAddress.Loopback, DefaultPortConfiguration.HttpPort);
                             })
-                .UseIISIntegration()
                 .Build();
         }
     }

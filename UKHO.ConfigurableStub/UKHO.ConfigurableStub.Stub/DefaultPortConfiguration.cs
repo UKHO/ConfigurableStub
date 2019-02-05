@@ -6,13 +6,13 @@
     public class DefaultPortConfiguration
     {
         /// <summary>
-        ///     Default IIS https port
+        ///     Default HTTPS port
         /// </summary>
-        public const int IISHttpsPort = 43455;
+        public const int HttpsPort = 43455;
 
         /// <summary>
-        ///     Default IIS http port
+        ///     Default HTTP port
         /// </summary>
-        public const int IISHttpPort = 54988;
+        public const int HttpPort = 54988;
     }
 }
