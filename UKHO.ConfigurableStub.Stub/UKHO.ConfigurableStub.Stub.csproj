@@ -15,9 +15,10 @@
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
-
-
-
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/UKHO/ConfigurableStub</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/UKHO/ConfigurableStub</PackageProjectUrl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath></OutputPath>
