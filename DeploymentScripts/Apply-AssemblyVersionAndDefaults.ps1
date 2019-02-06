@@ -24,7 +24,7 @@ $versionToApply = "$majorMinorVersion.$buildRevisionNumber"
 
 $assemblyValues = @{
     "Company"         = "UK Hydrographic Office";
-    "Copyright"       = "Crown Copyright © UK Hydrographic Office 2019";
+    "Copyright"       = "Copyright © 2019 Crown Copyright (UK Hydrographic Office)";
     "Description"     = "UKHO.ConfigurableStub";
     "Product"         = "UKHO.ConfigurableStub";
     "AssemblyVersion" = $versionToApply;
