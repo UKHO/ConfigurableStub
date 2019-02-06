@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using UKHO.ConfigurableStub.Stub.Models;
 
@@ -30,8 +31,11 @@ namespace UKHO.ConfigurableStub.Stub
 {
     internal static class StubRouter
     {
-        internal static IApplicationBuilder UseStubRouter(this IApplicationBuilder app)
+        private static ILogger logger;
+
+        internal static IApplicationBuilder UseStubRouter(this IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
+            logger = loggerFactory.CreateLogger("StubRouter");
             var mappedRoutes =
                 new ConcurrentDictionary<string, RouteConfiguration>();
             var lastRequests = new ConcurrentDictionary<string, IRequestRecord<object>>();
@@ -121,13 +125,23 @@ namespace UKHO.ConfigurableStub.Stub
         private static void StoreRequestInfomation(HttpContext context, string key,
             ConcurrentDictionary<string, IRequestRecord<object>> lastRequests)
         {
-            var deserializeObject = JsonConvert.DeserializeObject(new StreamReader(context.Request.Body).ReadToEnd());
+            object requestObject;
+            try
+            {
+                requestObject = JsonConvert.DeserializeObject(new StreamReader(context.Request.Body).ReadToEnd());
+            }
+            catch (Exception e)
+            {
+                logger.LogInformation(new EventId(1234),e,"Non-fatal error on deserializing request as json. Request will be stored as a string instead.");
+                requestObject = new StreamReader(context.Request.Body).ReadToEnd();
+            }
+            
             var requestHeaders = context.Request.Headers.ToDictionary(pair => pair.Key, pair => pair.Value.ToString());
 
             var requestRecord = new RequestRecord<object>
             {
                 RequestBody =
-                    deserializeObject,
+                    requestObject,
                 RequestHeaders =
                     requestHeaders
             };
