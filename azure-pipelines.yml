@@ -16,6 +16,10 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- task: DotNetCoreInstaller@0
+  inputs:
+    version: '2.1.503' 
+
 - task: PowerShell@2
   displayName: Apply version numbers to assemblies
   inputs:
