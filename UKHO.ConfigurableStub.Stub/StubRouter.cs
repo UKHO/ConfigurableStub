@@ -46,7 +46,7 @@ namespace UKHO.ConfigurableStub.Stub
                 var resource = ((string) context.GetRouteValue("resource")).TrimEnd('/');
                 var key = $"{verb}:api/{resource}";
 
-                StoreRequestInfomation(context, key, lastRequests);
+                StoreRequestInformation(context, key, lastRequests);
 
                 if (mappedRoutes.ContainsKey(key)) return SetMappedResponse(mappedRoutes, key, context);
 
@@ -89,6 +89,14 @@ namespace UKHO.ConfigurableStub.Stub
                     return Task.CompletedTask;
                 });
 
+            routeBuilder.MapDelete("stub", context =>
+            {
+                mappedRoutes = new ConcurrentDictionary<string, RouteConfiguration>();
+                lastRequests = new ConcurrentDictionary<string, IRequestRecord<object>>();
+                context.Response.StatusCode = 204;
+                return Task.CompletedTask;
+            });
+
             var routes = routeBuilder.Build();
             app.UseRouter(routes);
             return app;
@@ -122,7 +130,7 @@ namespace UKHO.ConfigurableStub.Stub
             }
         }
 
-        private static void StoreRequestInfomation(HttpContext context, string key,
+        private static void StoreRequestInformation(HttpContext context, string key,
             ConcurrentDictionary<string, IRequestRecord<object>> lastRequests)
         {
             object requestObject;
@@ -132,10 +140,11 @@ namespace UKHO.ConfigurableStub.Stub
             }
             catch (Exception e)
             {
-                logger.LogInformation(new EventId(1234),e,"Non-fatal error on deserializing request as json. Request will be stored as a string instead.");
+                logger.LogInformation(new EventId(1234), e,
+                    "Non-fatal error on deserializing request as json. Request will be stored as a string instead.");
                 requestObject = new StreamReader(context.Request.Body).ReadToEnd();
             }
-            
+
             var requestHeaders = context.Request.Headers.ToDictionary(pair => pair.Key, pair => pair.Value.ToString());
 
             var requestRecord = new RequestRecord<object>
