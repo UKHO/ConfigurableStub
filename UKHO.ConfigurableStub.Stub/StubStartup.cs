@@ -53,6 +53,7 @@ namespace UKHO.ConfigurableStub.Stub
                                 options.Listen(IPAddress.Loopback, DefaultPortConfiguration.HttpsPort, listenOptions => { listenOptions.UseHttps(cert); });
                                 options.Listen(IPAddress.Loopback, DefaultPortConfiguration.HttpPort);
                             })
+                .UseIISIntegration()
                 .Build();
         }
     }
