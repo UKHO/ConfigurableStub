@@ -23,7 +23,7 @@ using Microsoft.Extensions.Logging.Console;
 
 namespace UKHO.ConfigurableStub.Stub
 {
-    internal class Startup
+    public class Startup
     {
         public Startup(ILoggerFactory loggerFactory)
         {
@@ -45,6 +45,6 @@ namespace UKHO.ConfigurableStub.Stub
             app.UseErrorLogging(loggerFactory)
                 .UseLogAllRequests(loggerFactory)
                 .UseStubRouter(loggerFactory);
-        }
+            }
     }
 }
