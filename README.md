@@ -13,7 +13,7 @@ To start the stub you can use the static methods in the `StubStartup` class.
 ```cs
 StubStartup.StartWithSpecifiedPorts(44367, 45678);
 ```
-This would start the stub up on port 44367 for https and port 45678 for http using a self-signed certificate that will be valid for 40 minutes. The stub runs using kestrel only to be more light weight and easily configurable.
+This would start the stub up on port 44367 for https and port 45678 for http using a self-signed certificate that will be valid for 40 minutes.
 
 ### Configuring a call
 
