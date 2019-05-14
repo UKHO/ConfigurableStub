@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace UKHO.ConfigurableStub.Stub
             logger = loggerFactory.CreateLogger("StubRouter");
             var mappedRoutes =
                 new ConcurrentDictionary<string, RouteConfiguration>();
-            var lastRequests = new ConcurrentDictionary<string, IRequestRecord<object>>();
+            var lastRequests = new ConcurrentDictionary<string, IList<IRequestRecord<object>>>();
 
             var defaultRouteHandler = new RouteHandler(context =>
             {
@@ -57,6 +58,23 @@ namespace UKHO.ConfigurableStub.Stub
             var routeBuilder = new RouteBuilder(app, defaultRouteHandler);
             routeBuilder.MapRoute("Routes", "api/{*resource}");
 
+            routeBuilder.MapGet("stub/{verb}/history/api/{*resource}", //get details from last request to url...
+                context =>
+                {
+                    var verb = context.GetRouteValue("verb").ToString().ToUpperInvariant();
+                    var resource = ((string)context.GetRouteValue("resource")).TrimEnd('/');
+
+                    var key = $"{verb}:api/{resource}";
+                    if (lastRequests.ContainsKey(key))
+                    {
+                        context.Response.StatusCode = 200;
+                        return context.Response.WriteAsync(JsonConvert.SerializeObject(lastRequests[key]));
+                    }
+
+                    context.Response.StatusCode = 404;
+                    return context.Response.WriteAsync($"couldn't find any recent requests for {key}");
+                });
+
             routeBuilder.MapGet("stub/{verb}/api/{*resource}", //get details from last request to url...
                 context =>
                 {
@@ -67,7 +85,7 @@ namespace UKHO.ConfigurableStub.Stub
                     if (lastRequests.ContainsKey(key))
                     {
                         context.Response.StatusCode = 200;
-                        return context.Response.WriteAsync(JsonConvert.SerializeObject(lastRequests[key]));
+                        return context.Response.WriteAsync(JsonConvert.SerializeObject(lastRequests[key].First()));
                     }
 
                     context.Response.StatusCode = 404;
@@ -92,7 +110,7 @@ namespace UKHO.ConfigurableStub.Stub
             routeBuilder.MapDelete("stub", context =>
             {
                 mappedRoutes = new ConcurrentDictionary<string, RouteConfiguration>();
-                lastRequests = new ConcurrentDictionary<string, IRequestRecord<object>>();
+                lastRequests = new ConcurrentDictionary<string, IList<IRequestRecord<object>>>();
                 context.Response.StatusCode = 204;
                 return Task.CompletedTask;
             });
@@ -131,7 +149,7 @@ namespace UKHO.ConfigurableStub.Stub
         }
 
         private static void StoreRequestInformation(HttpContext context, string key,
-            ConcurrentDictionary<string, IRequestRecord<object>> lastRequests)
+            ConcurrentDictionary<string, IList<IRequestRecord<object>>> lastRequests)
         {
             object requestObject;
             try
@@ -154,8 +172,14 @@ namespace UKHO.ConfigurableStub.Stub
                 RequestHeaders =
                     requestHeaders
             };
-
-            lastRequests[key] = requestRecord;
+            if (lastRequests.ContainsKey(key))
+            {
+                lastRequests[key].Add(requestRecord);
+            }
+            else
+            {
+                lastRequests[key] = new List<IRequestRecord<object>>{requestRecord};
+            }
         }
     }
 }
