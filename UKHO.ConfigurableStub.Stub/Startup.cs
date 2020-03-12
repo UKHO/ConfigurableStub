@@ -23,19 +23,18 @@ using Microsoft.Extensions.Logging.Console;
 
 namespace UKHO.ConfigurableStub.Stub
 {
-    public class Startup
+    internal class Startup
     {
-        public Startup(ILoggerFactory loggerFactory)
+        internal Startup(ILoggerFactory loggerFactory)
         {
-
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        internal void ConfigureServices(IServiceCollection services)
         {
             services.AddRouting();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        internal void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {

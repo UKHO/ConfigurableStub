@@ -26,46 +26,37 @@ using Microsoft.Extensions.Logging;
 namespace UKHO.ConfigurableStub.Stub
 {
     /// <summary>
-    /// The StubStartup class contains the static methods to start the stub
+    ///     The StubStartup class contains the static methods to start the stub
     /// </summary>
     public static class StubStartup
     {
-
-
         /// <summary>
-        /// Start the stub with Kestrel on ports 46590 for https and 46587 for http using IIS integration on ports 43455 for https and 54988 for http.
-        /// You can pass in a textwriter to get the output
+        ///     Start the stub with Kestrel on ports 46590 for https and 46587 for http using IIS integration on ports 43455 for
+        ///     https and 54988 for http.
+        ///     You can pass in a textwriter to get the output
         /// </summary>
         /// <remarks>
-        /// TODO - make ports configurable
-        /// This stub will not work if not run from an executable with a new csproj.
-        /// </remarks>>
-        public static void StartStub(TextWriter textWriter)
+        ///     TODO - make ports configurable
+        ///     This stub will not work if not run from an executable with a new csproj.
+        /// </remarks>
+        /// >
+        public static void StartStub(TextWriter textWriter = null)
         {
-            Console.SetOut(textWriter);
-            BuildStubWebHost().Run();
-        }
+            if (textWriter != null)
+            {
+                Console.SetOut(textWriter);
+            }
 
-        /// <summary>
-        /// Start the stub with Kestrel on ports 46590 for https and 46587 for http using IIS integration on ports 43455 for https and 54988 for http.
-        /// </summary>
-        /// <remarks>
-        /// TODO - make ports configurable
-        /// This stub will not work if not run from an executable with a new csproj.
-        /// </remarks>>
-        public static void StartStub()
-        {
             BuildStubWebHost().Run();
         }
 
         private static IWebHost BuildStubWebHost()
         {
-           
             var certificateBuilder = new CertificateBuilder("password1", TimeSpan.FromMinutes(40));
             var cert = new X509Certificate2(certificateBuilder.CertificateStream.ToArray(), "password1");
             return WebHost.CreateDefaultBuilder(new string[0])
                 .UseStartup<Startup>()
-                .ConfigureLogging((x,log) => log.AddConsole(lo => lo.IncludeScopes=true))
+                .ConfigureLogging((x, log) => log.AddConsole(lo => lo.IncludeScopes = true))
                 .UseKestrel(options =>
                             {
                                 options.Listen(IPAddress.Loopback, DefaultPortConfiguration.HttpsPort, listenOptions => { listenOptions.UseHttps(cert); });
