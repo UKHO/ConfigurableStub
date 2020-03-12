@@ -39,7 +39,7 @@ namespace UKHO.ConfigurableStub.Stub
         private readonly SecureRandom random = new SecureRandom(new CryptoApiRandomGenerator());
         private readonly X509Name subjectDn = new X509Name("C=UK, CN=UKHO");
 
-        public CertificateBuilder(string privateKeyPassword, TimeSpan certValidity)
+        internal CertificateBuilder(string privateKeyPassword, TimeSpan certValidity)
         {
             this.privateKeyPassword = privateKeyPassword;
             signatureAlgorithm = DefaultSignatureAlgorithm;
@@ -52,7 +52,7 @@ namespace UKHO.ConfigurableStub.Stub
             Certificate = BuildX509Certificate(certValidity);
         }
 
-        public CertificateBuilder(string privateKeyPassword, TimeSpan certValidity, AsymmetricCipherKeyPair subjectKeyPair, string signatureAlgorithm)
+        internal CertificateBuilder(string privateKeyPassword, TimeSpan certValidity, AsymmetricCipherKeyPair subjectKeyPair, string signatureAlgorithm)
         {
             this.privateKeyPassword = privateKeyPassword;
             this.signatureAlgorithm = signatureAlgorithm;
@@ -60,10 +60,10 @@ namespace UKHO.ConfigurableStub.Stub
             Certificate = BuildX509Certificate(certValidity);
         }
 
-        public X509Certificate Certificate { get; }
-        public AsymmetricCipherKeyPair SubjectKeyPair { get; }
+        internal X509Certificate Certificate { get; }
+        internal AsymmetricCipherKeyPair SubjectKeyPair { get; }
 
-        public MemoryStream CertificateStream
+        internal MemoryStream CertificateStream
         {
             get
             {
@@ -84,7 +84,7 @@ namespace UKHO.ConfigurableStub.Stub
             }
         }
 
-        private X509Certificate BuildX509Certificate(TimeSpan certValidity)
+        internal X509Certificate BuildX509Certificate(TimeSpan certValidity)
         {
             var certificateGenerator = new X509V3CertificateGenerator();
             certificateGenerator.SetSerialNumber(BigIntegers.CreateRandomInRange(BigInteger.One, BigInteger.ValueOf(Int64.MaxValue), random));
