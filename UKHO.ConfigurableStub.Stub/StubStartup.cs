@@ -16,6 +16,7 @@
 // OF SUCH DAMAGE.
 
 using System;
+using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
@@ -33,6 +34,20 @@ namespace UKHO.ConfigurableStub.Stub
 
         /// <summary>
         /// Start the stub with Kestrel on ports 46590 for https and 46587 for http using IIS integration on ports 43455 for https and 54988 for http.
+        /// You can pass in a textwriter to get the output
+        /// </summary>
+        /// <remarks>
+        /// TODO - make ports configurable
+        /// This stub will not work if not run from an executable with a new csproj.
+        /// </remarks>>
+        public static void StartStub(TextWriter textWriter)
+        {
+            Console.SetOut(textWriter);
+            BuildStubWebHost().Run();
+        }
+
+        /// <summary>
+        /// Start the stub with Kestrel on ports 46590 for https and 46587 for http using IIS integration on ports 43455 for https and 54988 for http.
         /// </summary>
         /// <remarks>
         /// TODO - make ports configurable
@@ -45,6 +60,7 @@ namespace UKHO.ConfigurableStub.Stub
 
         private static IWebHost BuildStubWebHost()
         {
+           
             var certificateBuilder = new CertificateBuilder("password1", TimeSpan.FromMinutes(40));
             var cert = new X509Certificate2(certificateBuilder.CertificateStream.ToArray(), "password1");
             return WebHost.CreateDefaultBuilder(new string[0])
