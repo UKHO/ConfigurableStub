@@ -20,6 +20,7 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace UKHO.ConfigurableStub.Stub
 {
@@ -48,6 +49,7 @@ namespace UKHO.ConfigurableStub.Stub
             var cert = new X509Certificate2(certificateBuilder.CertificateStream.ToArray(), "password1");
             return WebHost.CreateDefaultBuilder(new string[0])
                 .UseStartup<Startup>()
+                .ConfigureLogging((x,log) => log.AddConsole(lo => lo.IncludeScopes=true))
                 .UseKestrel(options =>
                             {
                                 options.Listen(IPAddress.Loopback, DefaultPortConfiguration.HttpsPort, listenOptions => { listenOptions.UseHttps(cert); });

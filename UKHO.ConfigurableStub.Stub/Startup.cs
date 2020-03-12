@@ -27,7 +27,7 @@ namespace UKHO.ConfigurableStub.Stub
     {
         public Startup(ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(new ConsoleLoggerSettings { IncludeScopes = true });
+
         }
 
         public void ConfigureServices(IServiceCollection services)
