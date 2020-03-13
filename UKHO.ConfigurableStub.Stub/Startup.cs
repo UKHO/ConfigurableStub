@@ -25,16 +25,16 @@ namespace UKHO.ConfigurableStub.Stub
 {
     internal class Startup
     {
-        internal Startup(ILoggerFactory loggerFactory)
+        public Startup(ILoggerFactory loggerFactory)
         {
         }
 
-        internal void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             services.AddRouting();
         }
 
-        internal void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
