@@ -135,19 +135,22 @@ namespace UKHO.ConfigurableStub.Stub
                                               string key,
                                               HttpContext context)
         {
+
             var mapping = mappedRoutes[key];
             context.Response.StatusCode = mapping.StatusCode;
             context.Response.ContentType = mapping.ContentType;
-
-            var missingRequiredHeaders = mapping.RequiredHeaders
-                .Where(requiredHeader => !context.Request.Headers.ContainsKey(requiredHeader)).ToList();
-            var missingHeaders = missingRequiredHeaders.Any();
-
-            if (missingHeaders)
+            if (mapping.RequiredHeaders != null)
             {
-                context.Response.StatusCode = 500;
-                return context.Response.WriteAsync(
-                                                   $"Missing required headers: {string.Join(", ", missingRequiredHeaders)}");
+                var missingRequiredHeaders = mapping.RequiredHeaders
+                    .Where(requiredHeader => !context.Request.Headers.ContainsKey(requiredHeader)).ToList();
+                var missingHeaders = missingRequiredHeaders.Any();
+
+                if (missingHeaders)
+                {
+                    context.Response.StatusCode = 500;
+                    return context.Response.WriteAsync(
+                                                       $"Missing required headers: {string.Join(", ", missingRequiredHeaders)}");
+                }
             }
 
             if (string.IsNullOrEmpty(mappedRoutes[key].Base64EncodedBinaryResponse))

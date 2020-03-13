@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -29,11 +28,12 @@ namespace UKHO.ConfigurableStub.Stub.Client
 {
     /// <summary>
     ///     A client that configures the stub via HTTP requests.
+    ///     Calls from this class do not validate 
     /// </summary>
     public class StubClient : IDisposable
     {
-        private readonly string _stubBaseUrl;
-        private readonly HttpClient _httpClient;
+        private readonly string stubBaseUrl;
+        private readonly HttpClient httpClient;
 
         /// <summary>
         ///     Constructor for the StubClient.
@@ -41,8 +41,9 @@ namespace UKHO.ConfigurableStub.Stub.Client
         /// <param name="stubBaseUrl">The base URL of a running UKHO.ConfigurableStub.</param>
         public StubClient(string stubBaseUrl)
         {
-            _stubBaseUrl = stubBaseUrl;
-            _httpClient = new HttpClient();
+            this.stubBaseUrl = stubBaseUrl;
+            var handler = new HttpClientHandler { ServerCertificateCustomValidationCallback = (sender, certificate, chain, errors) => true };
+            httpClient = new HttpClient(handler);
         }
 
         /// <summary>
@@ -55,8 +56,7 @@ namespace UKHO.ConfigurableStub.Stub.Client
         public async Task<Option<RequestRecord<T>>> GetLastRequestAsync<T>(HttpMethod verb, string route)
         {
             route = route.TrimStart('/');
-            SetServicePointManagerSecurityProtocol();
-            var requestUri = $"{_stubBaseUrl}/Stub/{verb}/api/{route}";
+            var requestUri = $"{stubBaseUrl}/Stub/{verb}/api/{route}";
             return await GetValueFromStub<RequestRecord<T>>(requestUri);
         }
 
@@ -70,8 +70,7 @@ namespace UKHO.ConfigurableStub.Stub.Client
         public async Task<Option<List<RequestRecord<T>>>> GetRequestHistoryAsync<T>(HttpMethod verb, string route)
         {
             route = route.TrimStart('/');
-            SetServicePointManagerSecurityProtocol();
-            var requestUri = $"{_stubBaseUrl}/Stub/{verb}/history/api/{route}";
+            var requestUri = $"{stubBaseUrl}/Stub/{verb}/history/api/{route}";
             return await GetValueFromStub<List<RequestRecord<T>>>(requestUri);
         }
 
@@ -86,11 +85,10 @@ namespace UKHO.ConfigurableStub.Stub.Client
         public async Task ConfigureRouteAsync(HttpMethod verb, string route, RouteConfiguration configuration)
         {
             route = route.TrimStart('/');
-            SetServicePointManagerSecurityProtocol();
-            var requestUri = $"{_stubBaseUrl}/Stub/{verb}/api/{route}";
+            var requestUri = $"{stubBaseUrl}/Stub/{verb}/api/{route}";
             var jsonConfiguration = JsonConvert.SerializeObject(configuration);
             var response =
-                await _httpClient.PostAsync(requestUri, new StringContent(jsonConfiguration));
+                await httpClient.PostAsync(requestUri, new StringContent(jsonConfiguration));
 
             if (!response.IsSuccessStatusCode)
             {
@@ -105,9 +103,8 @@ namespace UKHO.ConfigurableStub.Stub.Client
         /// <exception cref="HttpRequestException"></exception>
         public async Task Reset()
         {
-            SetServicePointManagerSecurityProtocol();
-            var requestUri = $"{_stubBaseUrl}/stub";
-            var response = await _httpClient.DeleteAsync(requestUri);
+            var requestUri = $"{stubBaseUrl}/stub";
+            var response = await httpClient.DeleteAsync(requestUri);
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpRequestException($"Response from: {requestUri}. Response status code does not indicate success {(int)response.StatusCode}:{response.StatusCode}");
@@ -122,7 +119,7 @@ namespace UKHO.ConfigurableStub.Stub.Client
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_stubBaseUrl}/health");
+                var response = await httpClient.GetAsync($"{stubBaseUrl}/health");
                 return response.IsSuccessStatusCode;
             }
             catch
@@ -133,7 +130,7 @@ namespace UKHO.ConfigurableStub.Stub.Client
 
         private async Task<Option<T>> GetValueFromStub<T>(string requestUri)
         {
-            var response = await _httpClient.GetAsync(requestUri);
+            var response = await httpClient.GetAsync(requestUri);
             var responseBody = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
                 return Option<T>.None;
@@ -142,18 +139,12 @@ namespace UKHO.ConfigurableStub.Stub.Client
             return new Option<T>(result);
         }
 
-        private void SetServicePointManagerSecurityProtocol()
-        {
-            //Appears to get cleared out seemingly arbitrarily- calling ths before each http _httpClient is created.
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
-        }
-
         /// <summary>
         ///     Dispose method for the stub client.
         /// </summary>
         public void Dispose()
         {
-            _httpClient?.Dispose();
+            httpClient?.Dispose();
         }
     }
 }

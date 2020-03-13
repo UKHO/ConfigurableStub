@@ -29,21 +29,28 @@ namespace UKHO.ConfigurableStub.Stub.Client
     public class StubManager : IDisposable
     {
         private Task stubTask;
-        private readonly string localStubAddress = $"Https://localhost:{DefaultPortConfiguration.HttpsPort}";
+        /// <summary>
+        /// The local address for the stub.
+        /// </summary>
+        public string LocalStubAddress { get; private set; }
 
         /// <summary>
-        ///     Starts the stub and waits for it to be listening on a port.
+        ///     Starts the stub and waits for it to be listening on specified ports.
         /// </summary>
         /// <param name="standardOutputTextWriter">A text writer that the stub standard output will be redirected to.</param>
+        /// <param name="httpPort">The http port to start the stub on</param>
+        /// <param name="httpsPort">The https port to start the stub on</param>
         /// <exception cref="Exception"></exception>
-        public void Start(TextWriter standardOutputTextWriter)
+        public void Start(TextWriter standardOutputTextWriter,int httpPort = DefaultPortConfiguration.HttpPort, int httpsPort = DefaultPortConfiguration.HttpsPort)
         {
-            stubTask = Task.Run(() => StubStartup.StartStub(standardOutputTextWriter));
+            LocalStubAddress = $"Https://localhost:{httpsPort}";
+            stubTask = Task.Run(() => StubStartup.StartStub(standardOutputTextWriter, httpPort, httpsPort));
             try
             {
-                using (var stubClient = new StubClient(localStubAddress))
+                using (var stubClient = new StubClient(LocalStubAddress))
                 {
-                    TimingHelper.WaitFor(() => stubClient.HealthCheck().Result);
+                    // ReSharper disable once AccessToDisposedClosure - this closure is only used in the timing helper and will not be used outside the using.
+                    TimingHelper.WaitFor(() => stubClient.HealthCheck().Result, 100);
                 }
             }
             catch

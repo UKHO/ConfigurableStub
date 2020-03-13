@@ -19,8 +19,15 @@ using System;
 
 namespace UKHO.ConfigurableStub.Stub.Client
 {
+    /// <summary>
+    /// A class used to abstract nullables, it can either have a value or be empty. Only get the value if you know it is not empty.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class Option<T>
     {
+        /// <summary>
+        /// Fives back an empty option.
+        /// </summary>
         public static Option<T> None = new Option<T>();
         private readonly T value;
 
@@ -29,6 +36,11 @@ namespace UKHO.ConfigurableStub.Stub.Client
             IsSome = false;
         }
 
+        /// <summary>
+        /// Constructor for the options calss.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public Option(T value)
         {
             if (value == null)
@@ -37,10 +49,23 @@ namespace UKHO.ConfigurableStub.Stub.Client
             IsSome = true;
         }
 
+        /// <summary>
+        /// Check to see if the option contains a value.
+        /// </summary>
         public bool IsSome { get; }
+        /// <summary>
+        /// Check to see if the option contains no value.
+        /// </summary>
         public bool IsNone => !IsSome;
+        /// <summary>
+        /// Get the value from the option this will fail if the option does not have a value.
+        /// </summary>
         public T Value => IsSome ? value : throw new InvalidOperationException("IsNone");
 
+        /// <summary>
+        /// This will toString the option giving the type name .none or the toString of the value.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             if (IsNone)
