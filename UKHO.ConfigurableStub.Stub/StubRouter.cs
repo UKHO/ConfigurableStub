@@ -1,4 +1,4 @@
-﻿// British Crown Copyright © 2018,
+﻿// British Crown Copyright © 2020,
 // All rights reserved.
 // 
 // You may not copy the Software, rent, lease, sub-license, loan, translate, merge, adapt, vary
@@ -21,11 +21,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
+
 using UKHO.ConfigurableStub.Stub.Models;
 
 namespace UKHO.ConfigurableStub.Stub
@@ -42,100 +45,112 @@ namespace UKHO.ConfigurableStub.Stub
             var lastRequests = new ConcurrentDictionary<string, IList<IRequestRecord<object>>>();
 
             var defaultRouteHandler = new RouteHandler(context =>
-            {
-                var verb = context.Request.Method.ToUpperInvariant();
-                var resource = ((string) context.GetRouteValue("resource")).TrimEnd('/');
-                var key = $"{verb}:api/{resource}";
+                                                       {
+                                                           var verb = context.Request.Method.ToUpperInvariant();
+                                                           var resource = ((string)context.GetRouteValue("resource")).TrimEnd('/');
+                                                           var key = $"{verb}:api/{resource}";
 
-                StoreRequestInformation(context, key, lastRequests);
+                                                           StoreRequestInformation(context, key, lastRequests);
 
-                if (mappedRoutes.ContainsKey(key)) return SetMappedResponse(mappedRoutes, key, context);
+                                                           if (mappedRoutes.ContainsKey(key)) return SetMappedResponse(mappedRoutes, key, context);
 
-                context.Response.StatusCode = 500;
-                return context.Response.WriteAsync("NO ROUTE DEFINED!");
-            });
+                                                           context.Response.StatusCode = 500;
+                                                           return context.Response.WriteAsync("NO ROUTE DEFINED!");
+                                                       });
 
             var routeBuilder = new RouteBuilder(app, defaultRouteHandler);
             routeBuilder.MapRoute("Routes", "api/{*resource}");
 
+            routeBuilder.MapGet("health", //get details from last request to url...
+                                context =>
+                                {
+                                    context.Response.StatusCode = 200;
+                                    return Task.CompletedTask;
+                                });
+
             routeBuilder.MapGet("stub/{verb}/history/api/{*resource}", //get details from last request to url...
-                context =>
-                {
-                    var verb = context.GetRouteValue("verb").ToString().ToUpperInvariant();
-                    var resource = ((string)context.GetRouteValue("resource")).TrimEnd('/');
+                                context =>
+                                {
+                                    var verb = context.GetRouteValue("verb").ToString().ToUpperInvariant();
+                                    var resource = ((string)context.GetRouteValue("resource")).TrimEnd('/');
 
-                    var key = $"{verb}:api/{resource}";
-                    if (lastRequests.ContainsKey(key))
-                    {
-                        context.Response.StatusCode = 200;
-                        return context.Response.WriteAsync(JsonConvert.SerializeObject(lastRequests[key]));
-                    }
+                                    var key = $"{verb}:api/{resource}";
+                                    if (lastRequests.ContainsKey(key))
+                                    {
+                                        context.Response.StatusCode = 200;
+                                        return context.Response.WriteAsync(JsonConvert.SerializeObject(lastRequests[key]));
+                                    }
 
-                    context.Response.StatusCode = 404;
-                    return context.Response.WriteAsync($"couldn't find any recent requests for {key}");
-                });
+                                    context.Response.StatusCode = 404;
+                                    return context.Response.WriteAsync($"couldn't find any recent requests for {key}");
+                                });
 
             routeBuilder.MapGet("stub/{verb}/api/{*resource}", //get details from last request to url...
-                context =>
-                {
-                    var verb = context.GetRouteValue("verb").ToString().ToUpperInvariant();
-                    var resource = ((string) context.GetRouteValue("resource")).TrimEnd('/');
+                                context =>
+                                {
+                                    var verb = context.GetRouteValue("verb").ToString().ToUpperInvariant();
+                                    var resource = ((string)context.GetRouteValue("resource")).TrimEnd('/');
 
-                    var key = $"{verb}:api/{resource}";
-                    if (lastRequests.ContainsKey(key))
-                    {
-                        context.Response.StatusCode = 200;
-                        return context.Response.WriteAsync(JsonConvert.SerializeObject(lastRequests[key].First()));
-                    }
+                                    var key = $"{verb}:api/{resource}";
+                                    if (lastRequests.ContainsKey(key))
+                                    {
+                                        context.Response.StatusCode = 200;
+                                        return context.Response.WriteAsync(JsonConvert.SerializeObject(lastRequests[key].First()));
+                                    }
 
-                    context.Response.StatusCode = 404;
-                    return context.Response.WriteAsync($"couldn't find any recent requests for {key}");
-                });
+                                    context.Response.StatusCode = 404;
+                                    return context.Response.WriteAsync($"couldn't find any recent requests for {key}");
+                                });
 
             routeBuilder.MapPost("stub/{verb}/api/{*resource}", //Set expected response for a URL.
-                context =>
-                {
-                    var verb = context.GetRouteValue("verb").ToString().ToUpperInvariant();
-                    var resource = verb + ":api/" + ((string) context.GetRouteValue("resource")).TrimEnd('/');
+                                 context =>
+                                 {
+                                     var verb = context.GetRouteValue("verb").ToString().ToUpperInvariant();
+                                     var resource = verb + ":api/" + ((string)context.GetRouteValue("resource")).TrimEnd('/');
 
-                    var reader = new StreamReader(context.Request.Body);
-                    var body = reader.ReadToEnd();
+                                     var reader = new StreamReader(context.Request.Body);
+                                     var body = reader.ReadToEnd();
 
-                    mappedRoutes[resource] = JsonConvert.DeserializeObject<RouteConfiguration>(body);
+                                     mappedRoutes[resource] = JsonConvert.DeserializeObject<RouteConfiguration>(body);
 
-                    context.Response.StatusCode = 204; //NoContent
-                    return Task.CompletedTask;
-                });
+                                     context.Response.StatusCode = 204; //NoContent
+                                     return Task.CompletedTask;
+                                 });
 
-            routeBuilder.MapDelete("stub", context =>
-            {
-                mappedRoutes = new ConcurrentDictionary<string, RouteConfiguration>();
-                lastRequests = new ConcurrentDictionary<string, IList<IRequestRecord<object>>>();
-                context.Response.StatusCode = 204;
-                return Task.CompletedTask;
-            });
+            routeBuilder.MapDelete("stub",
+                                   context =>
+                                   {
+                                       mappedRoutes = new ConcurrentDictionary<string, RouteConfiguration>();
+                                       lastRequests = new ConcurrentDictionary<string, IList<IRequestRecord<object>>>();
+                                       context.Response.StatusCode = 204;
+                                       return Task.CompletedTask;
+                                   });
 
             var routes = routeBuilder.Build();
             app.UseRouter(routes);
             return app;
         }
 
-        private static Task SetMappedResponse(ConcurrentDictionary<string, RouteConfiguration> mappedRoutes, string key,
-            HttpContext context)
+        private static Task SetMappedResponse(ConcurrentDictionary<string, RouteConfiguration> mappedRoutes,
+                                              string key,
+                                              HttpContext context)
         {
+
             var mapping = mappedRoutes[key];
             context.Response.StatusCode = mapping.StatusCode;
             context.Response.ContentType = mapping.ContentType;
-
-            var missingRequiredHeaders = mapping.RequiredHeaders
-                .Where(requiredHeader => !context.Request.Headers.ContainsKey(requiredHeader)).ToList();
-            var missingHeaders = missingRequiredHeaders.Any();
-
-            if (missingHeaders)
+            if (mapping.RequiredHeaders != null)
             {
-                context.Response.StatusCode = 500;
-                return context.Response.WriteAsync(
-                    $"Missing required headers: {string.Join(", ", missingRequiredHeaders)}");
+                var missingRequiredHeaders = mapping.RequiredHeaders
+                    .Where(requiredHeader => !context.Request.Headers.ContainsKey(requiredHeader)).ToList();
+                var missingHeaders = missingRequiredHeaders.Any();
+
+                if (missingHeaders)
+                {
+                    context.Response.StatusCode = 500;
+                    return context.Response.WriteAsync(
+                                                       $"Missing required headers: {string.Join(", ", missingRequiredHeaders)}");
+                }
             }
 
             if (string.IsNullOrEmpty(mappedRoutes[key].Base64EncodedBinaryResponse))
@@ -148,8 +163,9 @@ namespace UKHO.ConfigurableStub.Stub
             }
         }
 
-        private static void StoreRequestInformation(HttpContext context, string key,
-            ConcurrentDictionary<string, IList<IRequestRecord<object>>> lastRequests)
+        private static void StoreRequestInformation(HttpContext context,
+                                                    string key,
+                                                    ConcurrentDictionary<string, IList<IRequestRecord<object>>> lastRequests)
         {
             object requestObject;
             try
@@ -158,27 +174,28 @@ namespace UKHO.ConfigurableStub.Stub
             }
             catch (Exception e)
             {
-                logger.LogInformation(new EventId(1234), e,
-                    "Non-fatal error on deserializing request as json. Request will be stored as a string instead.");
+                logger.LogInformation(new EventId(1234),
+                                      e,
+                                      "Non-fatal error on deserializing request as json. Request will be stored as a string instead.");
                 requestObject = new StreamReader(context.Request.Body).ReadToEnd();
             }
 
             var requestHeaders = context.Request.Headers.ToDictionary(pair => pair.Key, pair => pair.Value.ToString());
 
             var requestRecord = new RequestRecord<object>
-            {
-                RequestBody =
-                    requestObject,
-                RequestHeaders =
-                    requestHeaders
-            };
+                                {
+                                    RequestBody =
+                                        requestObject,
+                                    RequestHeaders =
+                                        requestHeaders
+                                };
             if (lastRequests.ContainsKey(key))
             {
                 lastRequests[key].Add(requestRecord);
             }
             else
             {
-                lastRequests[key] = new List<IRequestRecord<object>>{requestRecord};
+                lastRequests[key] = new List<IRequestRecord<object>> { requestRecord };
             }
         }
     }

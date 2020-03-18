@@ -19,15 +19,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 
 namespace UKHO.ConfigurableStub.Stub
 {
     internal class Startup
     {
-        public Startup(ILoggerFactory loggerFactory)
-        {
-        }
 
         public void ConfigureServices(IServiceCollection services)
         {
