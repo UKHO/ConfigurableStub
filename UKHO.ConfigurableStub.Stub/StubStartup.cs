@@ -19,7 +19,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
@@ -39,13 +38,10 @@ namespace UKHO.ConfigurableStub.Stub
         ///     This stub will not work if not run from an executable with a new csproj.
         /// </remarks>
         /// >
-        public static void StartStub(TextWriter textWriter = null, int httpPort = DefaultPortConfiguration.HttpPort, int httpsPort = DefaultPortConfiguration.HttpsPort)
+        public static void StartStub(TextWriter textWriter = null, int httpPort = DefaultPortConfiguration.HttpPort,
+            int httpsPort = DefaultPortConfiguration.HttpsPort)
         {
-
-            if (textWriter != null)
-            {
-                Console.SetOut(textWriter);
-            }
+            if (textWriter != null) Console.SetOut(textWriter);
 
             BuildStubWebHost(httpPort, httpsPort).Run();
         }
@@ -56,12 +52,16 @@ namespace UKHO.ConfigurableStub.Stub
             var cert = new X509Certificate2(certificateBuilder.CertificateStream.ToArray(), "password1");
             return WebHost.CreateDefaultBuilder(new string[0])
                 .UseStartup<Startup>()
-                .ConfigureLogging((x, log) => log.AddConsole(lo => lo.IncludeScopes = true))
+                .ConfigureLogging((x, log) =>
+                {
+                    log.SetMinimumLevel(LogLevel.Information);
+                    log.AddConsole(lo => lo.IncludeScopes = true);
+                })
                 .UseKestrel(options =>
-                            {
-                                options.Listen(IPAddress.Loopback, httpsPort, listenOptions => { listenOptions.UseHttps(cert); });
-                                options.Listen(IPAddress.Loopback, httpPort);
-                            })
+                {
+                    options.Listen(IPAddress.Loopback, httpsPort, listenOptions => { listenOptions.UseHttps(cert); });
+                    options.Listen(IPAddress.Loopback, httpPort);
+                })
                 .Build();
         }
     }
