@@ -40,8 +40,9 @@ namespace UKHO.ConfigurableStub.Stub.Client
         /// <param name="standardOutputTextWriter">A text writer that the stub standard output will be redirected to.</param>
         /// <param name="httpPort">The http port to start the stub on</param>
         /// <param name="httpsPort">The https port to start the stub on</param>
+        /// <param name="timeout">Timeout on waiting for the stub to start</param>
         /// <exception cref="Exception"></exception>
-        public void Start(TextWriter standardOutputTextWriter,int httpPort = DefaultPortConfiguration.HttpPort, int httpsPort = DefaultPortConfiguration.HttpsPort)
+        public void Start(TextWriter standardOutputTextWriter,int httpPort = DefaultPortConfiguration.HttpPort, int httpsPort = DefaultPortConfiguration.HttpsPort, int timeoutSeconds = 5)
         {
             LocalStubAddress = $"Https://localhost:{httpsPort}";
             stubTask = Task.Run(() => StubStartup.StartStub(standardOutputTextWriter, httpPort, httpsPort));
@@ -50,7 +51,7 @@ namespace UKHO.ConfigurableStub.Stub.Client
                 using (var stubClient = new StubClient(LocalStubAddress))
                 {
                     // ReSharper disable once AccessToDisposedClosure - this closure is only used in the timing helper and will not be used outside the using.
-                    TimingHelper.WaitFor(() => stubClient.HealthCheck().Result, 100);
+                    TimingHelper.WaitFor(() => stubClient.HealthCheck().Result, timeoutSeconds);
                 }
             }
             catch
