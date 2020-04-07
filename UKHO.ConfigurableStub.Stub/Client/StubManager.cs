@@ -40,7 +40,7 @@ namespace UKHO.ConfigurableStub.Stub.Client
         /// <param name="standardOutputTextWriter">A text writer that the stub standard output will be redirected to.</param>
         /// <param name="httpPort">The http port to start the stub on</param>
         /// <param name="httpsPort">The https port to start the stub on</param>
-        /// <param name="timeout">Timeout on waiting for the stub to start</param>
+        /// <param name="timeoutSeconds">Timeout on waiting for the stub to start</param>
         /// <exception cref="Exception"></exception>
         public void Start(TextWriter standardOutputTextWriter,int httpPort = DefaultPortConfiguration.HttpPort, int httpsPort = DefaultPortConfiguration.HttpsPort, int timeoutSeconds = 5)
         {
