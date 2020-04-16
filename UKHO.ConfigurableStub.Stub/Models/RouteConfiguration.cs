@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace UKHO.ConfigurableStub.Stub.Models
 {
@@ -27,5 +28,7 @@ namespace UKHO.ConfigurableStub.Stub.Models
         /// The content type you wish to return e.g application/json, application/zip etc.
         /// </summary>
         public string ContentType { get; set; }
+        
+        public DateTimeOffset? LastModified { get; set; }
     }
 }

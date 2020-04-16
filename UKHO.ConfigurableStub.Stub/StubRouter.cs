@@ -26,7 +26,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 
 using UKHO.ConfigurableStub.Stub.Models;
@@ -139,6 +140,10 @@ namespace UKHO.ConfigurableStub.Stub
             var mapping = mappedRoutes[key];
             context.Response.StatusCode = mapping.StatusCode;
             context.Response.ContentType = mapping.ContentType;
+            if (mapping.LastModified != null)
+            {
+                context.Response.Headers[HeaderNames.LastModified] = new StringValues(mapping.LastModified.Value.ToString("R"));
+            }
             if (mapping.RequiredHeaders != null)
             {
                 var missingRequiredHeaders = mapping.RequiredHeaders
