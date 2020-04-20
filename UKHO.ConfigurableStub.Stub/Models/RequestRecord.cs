@@ -16,6 +16,10 @@ namespace UKHO.ConfigurableStub.Stub.Models
         /// The header for the request
         /// </summary>
         Dictionary<string, string> RequestHeaders { get; set; }
+        /// <summary>
+        /// The parameters of the request
+        /// </summary>
+        Dictionary<string, string> RequestParameters { get; set; }
     }
 
     /// <summary>
@@ -32,5 +36,10 @@ namespace UKHO.ConfigurableStub.Stub.Models
         /// The request headers
         /// </summary>
         public Dictionary<string, string> RequestHeaders { get; set; }
+        /// <summary>
+        /// The request parameters
+        /// </summary>
+        public Dictionary<string, string> RequestParameters { get; set; }
+
     }
 }

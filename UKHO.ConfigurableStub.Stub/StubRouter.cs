@@ -182,17 +182,19 @@ namespace UKHO.ConfigurableStub.Stub
                 logger.LogInformation(new EventId(1234),
                                       e,
                                       "Non-fatal error on deserializing request as json. Request will be stored as a string instead.");
+                context.Request.Body.Seek(0, SeekOrigin.Begin);
                 requestObject = new StreamReader(context.Request.Body).ReadToEnd();
             }
 
             var requestHeaders = context.Request.Headers.ToDictionary(pair => pair.Key, pair => pair.Value.ToString());
 
+            var requestParameters = context.Request.Query.ToDictionary(pair => pair.Key, pair => pair.Value.ToString());
+
             var requestRecord = new RequestRecord<object>
                                 {
-                                    RequestBody =
-                                        requestObject,
-                                    RequestHeaders =
-                                        requestHeaders
+                                    RequestBody = requestObject,
+                                    RequestHeaders = requestHeaders,
+                                    RequestParameters = requestParameters
                                 };
             if (lastRequests.ContainsKey(key))
             {
