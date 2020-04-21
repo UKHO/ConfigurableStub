@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,6 +27,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+
 using Newtonsoft.Json;
 
 using UKHO.ConfigurableStub.Stub.Models;
@@ -43,7 +43,7 @@ namespace UKHO.ConfigurableStub.Stub
             logger = loggerFactory.CreateLogger("StubRouter");
             var mappedRoutes =
                 new ConcurrentDictionary<string, RouteConfiguration>();
-            var lastRequests = new ConcurrentDictionary<string, IList<IRequestRecord<object>>>();
+            var lastRequests = new ConcurrentDictionary<string, ConcurrentQueue<IRequestRecord<object>>>();
 
             var defaultRouteHandler = new RouteHandler(context =>
                                                        {
@@ -122,7 +122,7 @@ namespace UKHO.ConfigurableStub.Stub
                                    context =>
                                    {
                                        mappedRoutes = new ConcurrentDictionary<string, RouteConfiguration>();
-                                       lastRequests = new ConcurrentDictionary<string, IList<IRequestRecord<object>>>();
+                                       lastRequests = new ConcurrentDictionary<string, ConcurrentQueue<IRequestRecord<object>>>();
                                        context.Response.StatusCode = 204;
                                        return Task.CompletedTask;
                                    });
@@ -136,7 +136,6 @@ namespace UKHO.ConfigurableStub.Stub
                                               string key,
                                               HttpContext context)
         {
-
             var mapping = mappedRoutes[key];
             context.Response.StatusCode = mapping.StatusCode;
             context.Response.ContentType = mapping.ContentType;
@@ -144,6 +143,7 @@ namespace UKHO.ConfigurableStub.Stub
             {
                 context.Response.Headers[HeaderNames.LastModified] = new StringValues(mapping.LastModified.Value.ToString("R"));
             }
+
             if (mapping.RequiredHeaders != null)
             {
                 var missingRequiredHeaders = mapping.RequiredHeaders
@@ -170,7 +170,7 @@ namespace UKHO.ConfigurableStub.Stub
 
         private static void StoreRequestInformation(HttpContext context,
                                                     string key,
-                                                    ConcurrentDictionary<string, IList<IRequestRecord<object>>> lastRequests)
+                                                    ConcurrentDictionary<string, ConcurrentQueue<IRequestRecord<object>>> lastRequests)
         {
             object requestObject;
             try
@@ -196,14 +196,19 @@ namespace UKHO.ConfigurableStub.Stub
                                     RequestHeaders = requestHeaders,
                                     RequestParameters = requestParameters
                                 };
-            if (lastRequests.ContainsKey(key))
-            {
-                lastRequests[key].Add(requestRecord);
-            }
-            else
-            {
-                lastRequests[key] = new List<IRequestRecord<object>> { requestRecord };
-            }
+            lastRequests.AddOrUpdate(key,
+                                     (k) =>
+                                     {
+                                         var queue = new ConcurrentQueue<IRequestRecord<object>>();
+                                         queue.Enqueue(requestRecord);
+                                         return queue;
+                                     },
+                                     (s, d) =>
+                                     {
+                                         d.Enqueue(requestRecord);
+                                         return d;
+                                     }
+                                    );
         }
     }
 }
