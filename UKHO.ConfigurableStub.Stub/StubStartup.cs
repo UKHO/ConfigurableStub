@@ -31,8 +31,8 @@ namespace UKHO.ConfigurableStub.Stub
     public static class StubStartup
     {
         /// <summary>
-        ///     Start the stub with Kestrel on ports 46590 for https and 46587
-        ///     You can pass in a textwriter to get the output
+        ///     Start the stub with Kestrel on default ports for http and https
+        ///     You can pass in a TextWriter to get the output
         /// </summary>
         /// <remarks>
         ///     This stub will not work if not run from an executable with a new csproj.
