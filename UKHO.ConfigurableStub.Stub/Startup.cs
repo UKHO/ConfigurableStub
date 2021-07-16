@@ -23,7 +23,7 @@ using Microsoft.Extensions.Logging;
 
 namespace UKHO.ConfigurableStub.Stub
 {
-    internal class Startup
+    public class Startup
     {
 
         public void ConfigureServices(IServiceCollection services)
