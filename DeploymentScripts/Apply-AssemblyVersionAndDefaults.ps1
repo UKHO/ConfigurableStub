@@ -7,7 +7,7 @@ Write-Host "Setting assembly versions and defaults..."
 Write-Host "    BuildNumber: $buildNumber"
 Write-Host "    SolutionDir: $solutionDirectory"
 
-$majorMinorVersion = "1.0"
+$majorMinorVersion = "1.1"
 
 $buildNumberRegex = "(.+)_20([0-9]{3,5}).([0-9]{1,2})"
 $validBuildNumber = $buildNumber -match $buildNumberRegex
