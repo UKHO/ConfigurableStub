@@ -44,7 +44,7 @@ steps:
   displayName: 'Pack'
   inputs:
     command: 'pack'
-    arguments: '--no-build --configuration $(buildConfiguration)'
+    arguments: '--no-build --no-restore --configuration $(buildConfiguration)'
     outputDir: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
